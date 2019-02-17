@@ -1,0 +1,27 @@
+{
+  "name": "graphql_sandbox",
+  "version": "1.0.0",
+  "description": "Try not to track any sand inside the house.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/protonbobby/GraphQL_sandbox.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/protonbobby/GraphQL_sandbox/issues"
+  },
+  "homepage": "https://github.com/protonbobby/GraphQL_sandbox#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "express-graphql": "^0.7.1",
+    "graphiql": "^0.12.0",
+    "graphql": "^14.1.1",
+    "node-fetch": "^2.3.0",
+    "xml2js": "^0.4.19"
+  }
+}
