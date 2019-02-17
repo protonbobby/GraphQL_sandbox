@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/protonbobby/GraphQL_sandbox#readme",
   "dependencies": {
+    "dataloader": "^1.4.0",
     "express": "^4.16.4",
     "express-graphql": "^0.7.1",
     "graphiql": "^0.12.0",

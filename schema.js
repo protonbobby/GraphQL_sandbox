@@ -3,6 +3,7 @@ const { goodreads } = require('./keys');
 const { key } = goodreads;
 const util = require('util');
 const parseXML = util.promisify(require('xml2js').parseString);
+const DataLoader = require('dataloader');
 const {
   GraphQLSchema,
   GraphQLObjectType,
@@ -14,7 +15,16 @@ const {
 const fetchAuthor = id =>
   fetch(`https://www.goodreads.com/author/show.xml?id=${id}&key=${key}`)
     .then(res => res.text())
-    .then(parseXML);
+    .then(parseXML)
+
+const fetchBook = id =>
+  fetch(`https://www.goodreads.com/book/show/${id}.xml?key=${key}`)
+    .then(res => res.text())
+    .then(parseXML)
+
+//for caching
+const authorLoader = new DataLoader(keys => Promise.all(keys.map(fetchAuthor)))
+const bookLoader = new DataLoader(keys => Promise.all(keys.map(fetchBook)))
 
 const BookType = new GraphQLObjectType({
   name: 'Book',
@@ -34,7 +44,7 @@ const BookType = new GraphQLObjectType({
       resolve: xml => {
         const authorElements = xml.GoodreadsResponse.book[0].authors[0].author
         const ids = authorElements.map(e => e.id[0])
-        return Promise.all(ids.map(fetchAuthor))
+        return authorLoader.loadMany(ids)
       }
     }
   })
@@ -54,11 +64,7 @@ const AuthorType = new GraphQLObjectType({
       type: new GraphQLList(BookType),
       resolve: xml => {
         const ids = xml.GoodreadsResponse.author[0].books[0].book.map(e => e.id[0]._)
-        return Promise.all(ids.map(id =>
-          fetch(`https://www.goodreads.com/book/show/${id}.xml?key=${key}`)
-            .then(res => res.text())
-            .then(parseXML)
-        ))
+        return bookLoader.loadMany(ids)
       }
     }
   })
@@ -75,7 +81,7 @@ module.exports = new GraphQLSchema({
         args: {
           id: { type: GraphQLInt }
         },
-        resolve: (root, args) => fetchAuthor(args.id)
+        resolve: (root, args) => authorLoader.load(args.id)
       }
     })
   })
